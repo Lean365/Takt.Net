@@ -1,0 +1,45 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
+// 文件名称：{{ table.entity_name_kebab }}.ts
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }}相关 API，对应后端 {{ if table.controller_class_name != null && table.controller_class_name != ""; table.controller_class_name; else; table.entity_class_name + "sController"; end }}
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+import request from '{{ table.request_import_path }}'
+import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
+import type {
+{{~ for cat in table.dto_category_descriptors ~}}
+  {{ cat.TsInterfaceName }}{{ if !for.last }},{{ end }}
+{{~ end ~}}
+} from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+
+// ========================================
+// {{ table.comment }}相关 API（按后端控制器顺序）
+// ========================================
+
+{{~ for action in table.controller_actions ~}}
+/**
+ * {{ action.Summary }}
+ * 对应后端：{{ action.MethodName }}
+ */
+export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}): {{ action.FrontendReturnType }} {
+  return request({
+{{ if action.Route == "{id}" }}
+    url: {{ "`" }}{{ table.api_base_path }}/${{ "{" }}id{{ "}" }}{{ "`" }},
+{{ else if action.Route == "" }}
+    url: '{{ table.api_base_path }}',
+{{ else }}
+    url: '{{ table.api_base_path }}/{{ action.Route }}',
+{{ end }}
+    method: '{{ if action.HttpMethod == "HttpGet" }}get{{ else if action.HttpMethod == "HttpPost" }}post{{ else if action.HttpMethod == "HttpPut" }}put{{ else }}delete{{ end }}'{{ if action.FrontendRequestKey == "params" }},
+    params{{ else if action.FrontendRequestKey == "data" }},
+    data{{ else if action.FrontendRequestKey == "data: ids" }},
+    data: ids{{ end }}
+  })
+}
+{{~ end ~}}

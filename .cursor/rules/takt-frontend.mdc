@@ -1,0 +1,51 @@
+---
+description: Takt 前端 Vue/TypeScript 约定（frontend/**/*.ts, frontend/**/*.vue）
+globs: frontend/**/*.ts, frontend/**/*.vue
+alwaysApply: false
+---
+
+# Takt 前端规则
+
+## 语言与运行时
+
+- **JavaScript/TypeScript 须符合 ES2020 规范**：与项目 `tsconfig.json` 的 `target: "ES2020"`、`lib: ["ES2020", "DOM", "DOM.Iterable"]` 一致。
+- 可使用的 ES2020 特性包括但不限于：可选链 `?.`、空值合并 `??`、`Promise.allSettled`、`String.prototype.matchAll`、`BigInt`、动态 `import()`、`globalThis`、`Object.fromEntries`、`Array.prototype.flat`/`flatMap`、`Symbol.prototype.description` 等；不依赖 ES2021+ 专属语法（如 `?.=`、`numeric separators`、`Promise.any`、`String.replaceAll`、`WeakRef` 等）除非项目已显式升级 target/lib。
+
+## 注释
+
+- **TypeScript 强烈推荐使用 JSDoc 风格注释**（以 `/** ... */` 开头）：用于文件/模块说明、函数与 API 说明、locales 区块说明等；行内短注释可用 `//`，但结构性说明与对外文档优先使用 JSDoc。
+
+## 目录与模块
+
+- **api/**：按后端模块划分（identity、humanresource/organization、logging、routine/dict、routine/i18n、tenant 等）；每个模块对应后端 Controller，如 `api/humanresource/organization/dept.ts` 对应 `TaktDeptsController`；请求使用 `request.ts` 封装的 axios 实例。
+- **types/**：与 api 模块对应，定义接口（对应后端 DTO）；主实体接口继承或对齐 `TaktEntityBase`（来自 `@/types/common`）；分页查询继承 `TaktPagedQuery`，分页结果使用 `TaktPagedResult<T>`；ID 与 long 对应字段使用 **string** 类型（避免 JS 精度问题）。
+- **views/**：页面按模块划分，与路由、菜单一致；子组件放在对应 `components/` 下。
+- **locales/**：按模块分 zh-CN、en-US；路径与 views 模块对应（如 identity/user、routine/dict/type）。
+- **stores/**：Pinia，按模块（identity、routine、theme 等）。
+- **utils/**、**composables/**、**layouts/**、**router/**、**assets/**：按现有结构使用。
+
+## API 与类型命名
+
+- API 方法：语义化动词，如 `getList`、`getById`、`create`、`update`、`remove`、`getTreeOptions`、`updateStatus`、`getTemplate`、`importXxx`、`exportXxx`；URL 与后端一致：`/api/TaktXxx/list`、`/api/TaktXxx/{id}`、`/api/TaktXxx`(POST)、`/api/TaktXxx/{id}`(PUT/DELETE)。
+- 类型：主实体如 `Dept`、`User`；查询 `DeptQuery`、`UserQuery`；创建/更新 `DeptCreate`、`DeptUpdate`、`DeptStatus`；与后端 DTO 一一对应，属性使用 camelCase；ID 字段（对应后端 long）使用 `string`。
+
+## 通用类型（common.d.ts）
+
+- `TaktEntityBase`：不含 id 的审计/租户字段；具体实体在各自类型文件中扩展并增加 `xxxId: string` 等。
+- `TaktPagedQuery`：`pageIndex`、`pageSize`。
+- `TaktPagedResult<T>`：`data`、`total`、`pageIndex`、`pageSize`、`totalPages`、`hasPreviousPage`、`hasNextPage`。
+- `TaktTreeSelectOption`、`TaktSelectOption`：树形/下拉选项。
+- `TaktApiResult<T>`：与后端统一返回结构一致；使用 `@/utils/enum` 的 `TaktResultCode`。
+
+## 请求与错误
+
+- 使用 `api/request.ts` 的 axios 实例；带 CSRF、withCredentials、统一错误提示与 token 刷新；导入/导出等大请求可设更长 timeout 或使用项目已有常量（如 IMPORT_TIMEOUT）。
+
+## Vue 与样式
+
+- 使用 Vue 3 Composition API；组件、页面与后端功能模块对应；样式使用项目已有 Less/主题（assets/styles、theme）；路由、权限与后端菜单/权限码一致。
+
+## 树表布局（takt-tree-left-* / takt-tree-right-*）
+
+- **边距与尺寸在组件内设置**：`takt-tree-left-query-bar`、`takt-tree-left-tools-bar`、`takt-tree-left-table`、`takt-tree-right-query-bar`、`takt-tree-right-tools-bar`、`takt-tree-right-table` 的 margin、padding、width 等均在各自组件内定义，引用页不重复设置。
+- **引用页只做行布局**：菜单、部门等使用树表布局的页面只负责 flex 行结构（query-row、toolbar-row、tree-table-wrap），不设置与组件尺寸/边距相关的样式。

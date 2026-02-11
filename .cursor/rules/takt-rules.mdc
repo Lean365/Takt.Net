@@ -1,0 +1,39 @@
+---
+description: Takt 项目总则（节拍数字工厂 · Takt Digital Factory）
+alwaysApply: true
+---
+
+# Takt 项目规则总则
+
+## 项目概述
+
+- **项目名称**：节拍数字工厂 · Takt Digital Factory (TDF)
+- **后端**：`backend/`，.NET 8，C#，解决方案 `Takt.Net.sln`，项目：Takt.Domain、Takt.Application、Takt.Infrastructure、Takt.Shared、Takt.WebApi
+- **前端**：`frontend/takt.antd/`，Vue 3 + TypeScript + Vite + Ant Design Vue
+
+## 通用约定
+
+- **结论必须基于真实代码**：禁止“推测”“可能”“预测”等模糊表述；修改前需亲自核对代码。
+- **信息源标注**：区分来自聊天上下文与来自工程/代码的信息。
+- **保持原有功能**：不得删除或破坏已有功能。
+- **回答语言**：使用中文简体。
+- **不需要额外说明文档**：除非用户明确要求。
+
+## 命名与结构
+
+- **后端**：公开类型（类、接口、枚举）统一使用 **Takt** 前缀；命名空间与文件夹按领域划分（如 Identity、HumanResource.Organization、Statistics.Logging、Routine.Dict）。
+- **前端**：API 路径与后端控制器一致（如 `/api/TaktDepts`）；类型与接口与后端 DTO 对应，使用 camelCase；目录与后端模块对应（api/、types/、views/、locales/ 按模块分）。
+
+## 文件头（可选但推荐）
+
+C# 与 TS/Vue 文件可保留项目统一文件头格式（项目名称、命名空间/路径、文件名称、功能描述、版权与免责声明）。
+
+## 多租户与数据库
+
+- 实体通过 `TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace` 按命名空间分配 ConfigId；新增实体需在 `TaktEntityDatabaseMapping` 中符合现有映射规则（ConfigId 0~5 对应 Identity/Accounting/HumanResource/Logistics/Generator-Routine/Routine）。
+- 实体基类为 `TaktEntityBase`，包含 Id(long)、ConfigId、软删除及审计字段；Id 序列化使用 `ValueToStringConverter` 避免前端精度问题。
+
+## 相关规则
+
+- 编辑 **backend/** 下 C# 时遵循：`.cursor/rules/takt-backend.mdc`
+- 编辑 **frontend/** 下 TS/Vue 时遵循：`.cursor/rules/takt-frontend.mdc`

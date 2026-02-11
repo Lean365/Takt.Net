@@ -1,0 +1,9 @@
+# Takt.Net Backend .gitignore
+
+# 排除配置文件（包含敏感信息，如数据库密码等）
+src/Takt.WebApi/appsettings.json
+src/Takt.WebApi/appsettings.Development.json
+src/Takt.WebApi/appsettings.Production.json
+
+# 保留示例配置文件
+!src/Takt.WebApi/appsettings.example.json
